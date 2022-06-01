@@ -1,5 +1,7 @@
 # Amazonyte
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/72789567-681a-4a87-be52-f1b4e1f78048/deploy-status?branch=main)](https://app.netlify.com/sites/amazonyte/deploys)
+
 - website: https://amazonyte.netlify.app
 - network: rinkedby
 - infura: https://infura.io/dashboard/ethereum/867da09e993444dfba35390f74d8c62e/settings, contract deployment
@@ -31,6 +33,7 @@ netlify deploy --prod # Publish directory select: build
 
 ask shiyu.wang.ui@gmail.com
 
+```javascript
 .
 ├── contract
 │ ├── .env
@@ -38,3 +41,4 @@ ask shiyu.wang.ui@gmail.com
 │ ├── .env
 │ └── .netlify
 │ └── state.json
+```

@@ -24,6 +24,9 @@ const Mint: FC<IMintProps> = () => {
         .send({ from: account })
         .once("receipt", (receipt: any) => {
           console.log("receipt", receipt);
+        })
+        .catch((error: any) => {
+          Notification.error({ content: error.message });
         });
     }
   };
@@ -57,8 +60,8 @@ const Mint: FC<IMintProps> = () => {
                   fileType: type,
                   date: res.Timestamp,
                 });
-              } catch (err: any) {
-                Notification.error({ content: err.message });
+              } catch (error: any) {
+                Notification.error({ content: error.message });
               }
             } else {
               console.log("errors", errors);

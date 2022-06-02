@@ -1,4 +1,12 @@
-import { useState, useEffect, createContext, useContext, FC } from "react";
+import {
+  useState,
+  useEffect,
+  createContext,
+  useContext,
+  FC,
+  useCallback,
+} from "react";
+import { Notification } from "@arco-design/web-react";
 import Web3 from "web3";
 import detectEthereumProvider from "@metamask/detect-provider";
 import Collections from "src/abis/Collections.json";
@@ -27,7 +35,7 @@ export const Web3Provider: FC<IWeb3ProviderProps> = ({ children }) => {
       const web3 = new Web3(provider as any);
       setWeb3(web3);
     } else {
-      console.log("ethereum not connected");
+      Notification.error({ content: "Ethereum not connected" });
     }
   };
 
@@ -45,26 +53,18 @@ export const Web3Provider: FC<IWeb3ProviderProps> = ({ children }) => {
       );
       setCollectionsContract(collectionsContract);
     } else {
-      console.log("smart contract not deployed");
+      Notification.error({ content: "Smart contract not deployed" });
     }
   };
 
-  const connectMetaMask = async (web3: any) => {
-    let accounts = await web3.eth.getAccounts();
-    console.log("accounts", accounts);
-    if (accounts.length === 0) {
-      console.log("User is not logged in to MetaMask");
-      try {
-        // @ts-ignore
-        accounts = await window.ethereum.request({
-          method: "eth_requestAccounts",
-        });
-      } catch (error: any) {
-        if (error.code === 4001) {
-          // User rejected request
-          console.log("User rejected request");
-        }
-      }
+  const connectMetaMask = async () => {
+    let accounts = [];
+    try {
+      accounts = await window.ethereum.request({
+        method: "eth_requestAccounts",
+      });
+    } catch (error: any) {
+      Notification.error({ content: error.message });
     }
     setAccount(accounts?.[0]);
   };
@@ -73,11 +73,40 @@ export const Web3Provider: FC<IWeb3ProviderProps> = ({ children }) => {
     loadWeb3();
   }, []);
 
+  const handleAccountsChanged = useCallback(
+    async (accounts: any) => {
+      console.log("handleAccountsChanged", accounts);
+      if (accounts.length === 0) {
+        // MetaMask is locked or the user has not connected any accounts
+        setAccount(null);
+        await connectMetaMask();
+      } else if (accounts[0] !== account) {
+        setAccount(accounts?.[0]);
+      }
+    },
+    [web3]
+  );
+
+  const handleChainChanged = useCallback(
+    (_chainId: any) => {
+      console.log("_chainId", _chainId);
+      window.location.reload();
+    },
+    [web3]
+  );
+
   useEffect(() => {
     if (web3) {
-      connectMetaMask(web3);
+      connectMetaMask();
       loadContracts(web3);
+      window.ethereum.on("accountsChanged", handleAccountsChanged);
+      window.ethereum.on("chainChanged", handleChainChanged);
     }
+
+    return () => {
+      window.ethereum.removeListener("accountsChanged", handleAccountsChanged);
+      window.ethereum.removeListener("chainChanged", handleAccountsChanged);
+    };
   }, [web3]);
   return (
     <Web3Context.Provider value={{ web3, account, collectionsContract }}>

@@ -77,7 +77,7 @@ const Header = () => {
     <Layout.Header className={styles["navbar"]}>
       <div className={styles["left"]}>
         <div className={styles["logo"]}>
-          <div className={styles["logo-name"]}>Logo</div>
+          <div className={styles["logo-name"]}>{account}</div>
         </div>
       </div>
       <ul className={styles["right"]}>

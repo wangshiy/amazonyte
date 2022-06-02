@@ -3,3 +3,7 @@ declare module "*.module.less" {
   export default classes;
 }
 declare module "@loadable/component";
+
+interface Window {
+  ethereum: any;
+}

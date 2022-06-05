@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import {
   Input,
   Avatar,
@@ -21,27 +22,19 @@ import {
 } from "@arco-design/web-react/icon";
 import styles from "./index.module.less";
 import useWeb3 from "src/contexts/web3-context";
+import jazzicon from "@metamask/jazzicon";
 
 const Header = () => {
+  const avatarRef = useRef<any>();
   const { account } = useWeb3();
   const onMenuItemClick = () => {};
 
   const droplist = (
     <Menu onClickMenuItem={onMenuItemClick}>
-      <Menu.SubMenu
-        key="role"
-        title={
-          <>
-            <IconUser className={styles["dropdown-icon"]} />
-            <span className={styles["user-role"]}>admin</span>
-          </>
-        }
-      >
-        <Menu.Item key="switch role">
-          <IconTag className={styles["dropdown-icon"]} />
-          switchRoles
-        </Menu.Item>
-      </Menu.SubMenu>
+      <Menu.Item key="account">
+        <IconUser className={styles["dropdown-icon"]} />
+        {account}
+      </Menu.Item>
       <Menu.Item key="setting">
         <IconSettings className={styles["dropdown-icon"]} />
         setting
@@ -73,11 +66,25 @@ const Header = () => {
     </Menu>
   );
 
+  // https://stackoverflow.com/questions/71678374/get-metamask-profile-picture-and-name-use-web3
+  useEffect(() => {
+    const element = avatarRef.current;
+    if (element && account) {
+      const addr = account.slice(2, 10);
+      const seed = parseInt(addr, 16);
+      const icon = jazzicon(32, seed); //generates a size 20 icon
+      if (element.firstChild) {
+        element.removeChild(element.firstChild);
+      }
+      element.appendChild(icon);
+    }
+  }, [account, avatarRef]);
+
   return (
     <Layout.Header className={styles["navbar"]}>
       <div className={styles["left"]}>
         <div className={styles["logo"]}>
-          <div className={styles["logo-name"]}>{account}</div>
+          <div className={styles["logo-name"]}>Amazonyte</div>
         </div>
       </div>
       <ul className={styles["right"]}>
@@ -127,9 +134,11 @@ const Header = () => {
         </li>
         <li>
           <Dropdown droplist={droplist} position="br">
-            <Avatar size={32} style={{ cursor: "pointer" }}>
-              {account}
-            </Avatar>
+            <Avatar
+              ref={avatarRef}
+              size={32}
+              style={{ cursor: "pointer" }}
+            ></Avatar>
           </Dropdown>
         </li>
       </ul>

@@ -1,4 +1,4 @@
-import { Fragment, FC } from "react";
+import { FC } from "react";
 import {
   Form,
   Button,
@@ -6,8 +6,10 @@ import {
   Modal,
   Notification,
 } from "@arco-design/web-react";
+import { useNavigate } from "react-router-dom";
 import useWeb3 from "src/contexts/web3-context";
 import api from "src/utils/api";
+import styles from "./index.module.less";
 
 const FormItem = Form.Item;
 
@@ -16,6 +18,7 @@ interface IMintProps {}
 const Mint: FC<IMintProps> = () => {
   const { account, collectionsContract } = useWeb3();
   const [form] = Form.useForm();
+  let navigate = useNavigate();
 
   const mint = (collection: any) => {
     if (collectionsContract) {
@@ -24,6 +27,11 @@ const Mint: FC<IMintProps> = () => {
         .send({ from: account })
         .once("receipt", (receipt: any) => {
           console.log("receipt", receipt);
+          Notification.success({
+            title: "Success",
+            content: JSON.stringify(receipt),
+          });
+          navigate("/");
         })
         .catch((error: any) => {
           Notification.error({ content: error.message });
@@ -32,7 +40,7 @@ const Mint: FC<IMintProps> = () => {
   };
 
   return (
-    <Fragment>
+    <div className={styles["form-container"]}>
       <Form
         form={form}
         onSubmit={() => {
@@ -113,7 +121,7 @@ const Mint: FC<IMintProps> = () => {
           </Button>
         </FormItem>
       </Form>
-    </Fragment>
+    </div>
   );
 };
 

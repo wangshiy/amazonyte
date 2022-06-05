@@ -1,4 +1,4 @@
-import { useState, useEffect, Fragment } from "react";
+import { useState, useEffect } from "react";
 import { Card, Avatar, Typography } from "@arco-design/web-react";
 import {
   IconThumbUp,
@@ -42,70 +42,70 @@ const Home = () => {
   }, [collectionsContract]);
 
   return (
-    <Fragment>
-      <div
-        style={{
-          display: "flex",
-          width: "100%",
-          boxSizing: "border-box",
-          padding: 40,
-        }}
-      >
-        {data.collections.map((collection: any, key: number) => {
-          return (
-            <Card
-              key={key}
-              className={styles["card-with-icon-hover"]}
-              style={{ width: 360, margin: 4 }}
-              cover={
+    <div
+      style={{
+        display: "flex",
+        width: "100%",
+        boxSizing: "border-box",
+        flexWrap: "wrap",
+        justifyContent: "center",
+        padding: 16,
+      }}
+    >
+      {data.collections.map((collection: any, key: number) => {
+        return (
+          <Card
+            key={key}
+            className={styles["card-with-icon-hover"]}
+            style={{ width: 360, margin: 4 }}
+            cover={
+              <div
+                style={{
+                  height: 204,
+                  overflow: "hidden",
+                }}
+              >
+                <img
+                  style={{ width: "100%", transform: "translateY(-20px)" }}
+                  alt="dessert"
+                  src={`https://gateway.pinata.cloud/ipfs/${collection.hash}`}
+                />
+              </div>
+            }
+            actions={[
+              <span className={styles["icon-hover"]}>
+                <IconThumbUp />
+              </span>,
+              <span className={styles["icon-hover"]}>
+                <IconShareInternal />
+              </span>,
+              <span className={styles["icon-hover"]}>
+                <IconMore />
+              </span>,
+            ]}
+          >
+            <Meta
+              avatar={
                 <div
                   style={{
-                    height: 204,
-                    overflow: "hidden",
+                    display: "flex",
+                    alignItems: "center",
+                    color: "#1D2129",
                   }}
                 >
-                  <img
-                    style={{ width: "100%", transform: "translateY(-20px)" }}
-                    alt="dessert"
-                    src={`https://gateway.pinata.cloud/ipfs/${collection.hash}`}
-                  />
+                  <Avatar size={24} style={{ marginRight: 8 }}>
+                    A
+                  </Avatar>
+                  <Typography.Text>aaa</Typography.Text>
                 </div>
               }
-              actions={[
-                <span className={styles["icon-hover"]}>
-                  <IconThumbUp />
-                </span>,
-                <span className={styles["icon-hover"]}>
-                  <IconShareInternal />
-                </span>,
-                <span className={styles["icon-hover"]}>
-                  <IconMore />
-                </span>,
-              ]}
-            >
-              <Meta
-                avatar={
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      color: "#1D2129",
-                    }}
-                  >
-                    <Avatar size={24} style={{ marginRight: 8 }}>
-                      A
-                    </Avatar>
-                    <Typography.Text>aaa</Typography.Text>
-                  </div>
-                }
-                title={collection.fileName}
-                description={`Type: ${collection.fileType}, Date: ${collection.date}`}
-              />
-            </Card>
-          );
-        })}
-      </div>
-    </Fragment>
+              title={collection.fileName}
+              description={`Type: ${collection.fileType}, Date: ${collection.date}`}
+            />
+          </Card>
+        );
+      })}
+    </div>
   );
 };
 

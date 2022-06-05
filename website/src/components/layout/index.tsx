@@ -6,6 +6,7 @@ import Header from "./header/index";
 import Footer from "./footer/index";
 import styles from "./index.module.less";
 import lazyload from "./lazyload";
+import logo from "src/assets/amazonyte.jpeg";
 const Home = lazyload(() => import("src/pages/home"));
 const Mint = lazyload(() => import("src/pages/mint"));
 const GLTF = lazyload(() => import("src/pages/demo/gltf"));
@@ -64,7 +65,9 @@ const PageLayout = () => {
           width={200}
           collapsible
         >
-          <div className={styles["logo"]} />
+          <div className={styles["logo"]}>
+            <img style={{ width: "100%" }} alt="amazonyte" src={logo} />
+          </div>
           <BaseMenu />
         </Sider>
         <Layout>

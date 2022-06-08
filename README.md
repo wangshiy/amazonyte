@@ -22,6 +22,8 @@ truffle migrate --reset --network rinkedby
 
 prerequisite: node > 16 for ipfs client
 
+Since the project keys are stored locally, so only deployed manually from local will work, in the other word, automatically deloyed from github won't work.
+
 ```sh
 cd website
 yarn build

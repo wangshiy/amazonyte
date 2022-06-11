@@ -24,4 +24,6 @@ interface IERC721 {
         address _to,
         uint256 _tokenId
     ) external;
+
+    function tokenURI(uint256 _tokenId) external view returns (string memory);
 }

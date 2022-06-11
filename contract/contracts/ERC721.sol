@@ -4,6 +4,7 @@ pragma solidity >=0.4.22 <0.9.0;
 import "./ERC165.sol";
 import "./interfaces/IERC721.sol";
 import "./libraries/Counters.sol";
+import "./libraries/Strings.sol";
 
 /************************************************************************************************
 building out the minting function
@@ -17,12 +18,17 @@ e. create an event that emits a transfer log - contract address, where it is bei
 contract ERC721 is ERC165, IERC721 {
     using SafeMath for uint256;
     using Counters for Counters.Counter;
+    using Strings for uint256;
     // mapping from tokenid to owner
     mapping(uint256 => address) private _tokenOwner;
     // mapping from owner to number of owned tokens
     mapping(address => Counters.Counter) private _OwnedTokensCount;
     // mapping from tokenId to approved address
     mapping(uint256 => address) private _tokenApprovals;
+    // Optional mapping for token URIs
+    mapping(uint256 => string) private _tokenURIs;
+    // Base URI
+    string private _baseURI;
 
     constructor() {
         _registerInterface(
@@ -140,5 +146,62 @@ contract ERC721 is ERC165, IERC721 {
         require(_exists(tokenId), "token does not exits");
         address owner = ownerOf(tokenId);
         return (spender == owner);
+    }
+
+    /**
+     * @dev Sets `_tokenURI` as the tokenURI of `tokenId`.
+     *
+     * Requirements:
+     *
+     * - `tokenId` must exist.
+     */
+    function _setTokenURI(uint256 tokenId, string memory _tokenURI)
+        internal
+        virtual
+    {
+        require(
+            _exists(tokenId),
+            "ERC721Metadata: URI set of nonexistent token"
+        );
+        _tokenURIs[tokenId] = _tokenURI;
+    }
+
+    /**
+     * @dev Returns the base URI set via {_setBaseURI}. This will be
+     * automatically added as a prefix in {tokenURI} to each token's URI, or
+     * to the token ID if no specific URI is set for that token ID.
+     */
+    function baseURI() public view virtual returns (string memory) {
+        return _baseURI;
+    }
+
+    /**
+     * @dev See {IERC721Metadata-tokenURI}.
+     */
+    function tokenURI(uint256 tokenId)
+        public
+        view
+        virtual
+        override
+        returns (string memory)
+    {
+        require(
+            _exists(tokenId),
+            "ERC721Metadata: URI query for nonexistent token"
+        );
+
+        string memory _tokenURI = _tokenURIs[tokenId];
+        string memory base = baseURI();
+
+        // If there is no base URI, return the token URI.
+        if (bytes(base).length == 0) {
+            return _tokenURI;
+        }
+        // If both are set, concatenate the baseURI and tokenURI (via abi.encodePacked).
+        if (bytes(_tokenURI).length > 0) {
+            return string(abi.encodePacked(base, _tokenURI));
+        }
+        // If there is a baseURI but no tokenURI, concatenate the tokenID to the baseURI.
+        return string(abi.encodePacked(base, tokenId.toString()));
     }
 }

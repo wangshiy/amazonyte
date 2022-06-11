@@ -20,10 +20,10 @@ const Mint: FC<IMintProps> = () => {
   const [form] = Form.useForm();
   let navigate = useNavigate();
 
-  const mint = (collection: any) => {
+  const mint = (collection: any, tokenUri: string) => {
     if (collectionsContract) {
       collectionsContract.methods
-        .mint(collection)
+        .mint(collection, tokenUri)
         .send({ from: account })
         .once("receipt", (receipt: any) => {
           console.log("receipt", receipt);
@@ -62,12 +62,15 @@ const Mint: FC<IMintProps> = () => {
                   }
                 );
                 console.log("res", res);
-                mint({
-                  hash: res.IpfsHash,
-                  fileName: file.name,
-                  fileType: type,
-                  date: res.Timestamp,
-                });
+                mint(
+                  {
+                    hash: res.IpfsHash,
+                    fileName: file.name,
+                    fileType: type,
+                    date: res.Timestamp,
+                  },
+                  "https://gateway.pinata.cloud/ipfs/QmQQe2FeFoGj7N8n3ESpk16BK9gq5L44WMwdhSss6NDWwe"
+                );
               } catch (error: any) {
                 Notification.error({ content: error.message });
               }

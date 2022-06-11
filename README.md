@@ -7,6 +7,7 @@
 - infura: https://infura.io/dashboard/ethereum/867da09e993444dfba35390f74d8c62e/settings, contract deployment
 - netlify: https://app.netlify.com/sites/amazonyte/overview, web hosting
 - pinata: https://app.pinata.cloud/pinmanager, ipfs storage
+- tenderly: https://dashboard.tenderly.co/tx/rinkeby/0x060a5a8cf23f00cbb95db8903a02ee022674557153848553ab1ae34599cbda0c/debugger, transaction debugging
 
 ## How to deploy
 
@@ -15,7 +16,7 @@
 ```sh
 truffle compile
 truffle migrate --reset --network rinkedby
-# truffle migrate --network development # when deploy to development
+# truffle migrate --reset --network development # when deploy to development
 ```
 
 ### Frontend

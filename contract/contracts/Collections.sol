@@ -16,7 +16,9 @@ contract Collections is ERC721Connector {
 
     mapping(string => bool) collectionExists;
 
-    function mint(Collection memory _collection) public {
+    function mint(Collection memory _collection, string memory tokenURI)
+        public
+    {
         require(
             !collectionExists[_collection.hash],
             "Error - collection already exists"
@@ -31,6 +33,7 @@ contract Collections is ERC721Connector {
         );
         uint256 id = collections.length - 1;
         _mint(msg.sender, id);
+        _setTokenURI(id, tokenURI);
         collectionExists[_collection.hash] = true;
     }
 

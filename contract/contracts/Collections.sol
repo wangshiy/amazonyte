@@ -1,9 +1,15 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.4.22 <0.9.0;
+pragma solidity ^0.6.6;
+pragma experimental ABIEncoderV2;
 
-import "./ERC721Connector.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+// import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
-contract Collections is ERC721Connector {
+contract Collections is ERC721 {
+    using SafeMath for uint256;
+    using Strings for string;
+
     // array to store nfts
     struct Collection {
         string hash;
@@ -15,6 +21,8 @@ contract Collections is ERC721Connector {
     Collection[] public collections;
 
     mapping(string => bool) collectionExists;
+
+    constructor() public ERC721("Collections", "COLLECTIONS") {}
 
     function mint(Collection memory _collection, string memory tokenURI)
         public
@@ -32,10 +40,20 @@ contract Collections is ERC721Connector {
             })
         );
         uint256 id = collections.length - 1;
-        _mint(msg.sender, id);
+        _safeMint(msg.sender, id);
         _setTokenURI(id, tokenURI);
         collectionExists[_collection.hash] = true;
     }
 
-    constructor() ERC721Connector("Collections", "COLLECTIONS") {}
+    function getTokenURI(uint256 tokenId) public view returns (string memory) {
+        return tokenURI(tokenId);
+    }
+
+    function setTokenURI(uint256 tokenId, string memory _tokenURI) public {
+        require(
+            _isApprovedOrOwner(_msgSender(), tokenId),
+            "ERC721: transfer caller is not owner nor approved"
+        );
+        _setTokenURI(tokenId, _tokenURI);
+    }
 }

@@ -1,10 +1,12 @@
-import { FC } from "react";
+import { FC, useState } from "react";
 import {
   Form,
   Button,
   Upload,
   Modal,
   Notification,
+  Input,
+  Spin,
 } from "@arco-design/web-react";
 import { useNavigate } from "react-router-dom";
 import useWeb3 from "src/contexts/web3-context";
@@ -12,10 +14,12 @@ import api from "src/utils/api";
 import styles from "./index.module.less";
 
 const FormItem = Form.Item;
+const TextArea = Input.TextArea;
 
 interface IMintProps {}
 
 const Mint: FC<IMintProps> = () => {
+  const [loading, setLoading] = useState<boolean>(false);
   const { account, collectionsContract } = useWeb3();
   const [form] = Form.useForm();
   let navigate = useNavigate();
@@ -40,12 +44,15 @@ const Mint: FC<IMintProps> = () => {
   };
 
   return (
-    <div className={styles["form-container"]}>
+    <Spin loading={loading} className={styles["form-loading"]}>
       <Form
+        style={{ margin: 16 }}
         form={form}
         onSubmit={() => {
           form.validate(async (errors, values) => {
             if (!errors) {
+              setLoading(true);
+              const { name, description } = values;
               const files = values.upload;
               const file = files[0].originFile;
               const type = file.name.substr(file.name.lastIndexOf(".") + 1);
@@ -62,6 +69,43 @@ const Mint: FC<IMintProps> = () => {
                   }
                 );
                 console.log("res", res);
+                //  tokenUri JSON is normally hosted on IPFS
+                const tokenUriJson = {
+                  name,
+                  description,
+                  image: `https://gateway.pinata.cloud/ipfs/${res.IpfsHash}`,
+                  attributes: [
+                    {
+                      trait_type: "Hash",
+                      value: res.IpfsHash,
+                    },
+                    {
+                      trait_type: "FileName",
+                      value: file.name,
+                    },
+                    {
+                      trait_type: "FileType",
+                      value: type,
+                    },
+                    {
+                      trait_type: "Date",
+                      value: res.Timestamp,
+                    },
+                  ],
+                };
+                const pinataJsonPayload = {
+                  pinataContent: tokenUriJson,
+                };
+                const tokenUriJsonRes: any = await api.post(
+                  "/pinning/pinJSONToIPFS",
+                  pinataJsonPayload,
+                  {
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                  }
+                );
+                console.log("tokenUriJsonRes", tokenUriJsonRes);
                 mint(
                   {
                     hash: res.IpfsHash,
@@ -69,10 +113,12 @@ const Mint: FC<IMintProps> = () => {
                     fileType: type,
                     date: res.Timestamp,
                   },
-                  "https://gateway.pinata.cloud/ipfs/QmQQe2FeFoGj7N8n3ESpk16BK9gq5L44WMwdhSss6NDWwe"
+                  `https://gateway.pinata.cloud/ipfs/${tokenUriJsonRes.IpfsHash}`
                 );
               } catch (error: any) {
                 Notification.error({ content: error.message });
+              } finally {
+                setLoading(false);
               }
             } else {
               console.log("errors", errors);
@@ -80,6 +126,25 @@ const Mint: FC<IMintProps> = () => {
           });
         }}
       >
+        <Form.Item
+          label="Name"
+          field="name"
+          rules={[{ required: true, type: "string" }]}
+        >
+          <Input style={{ width: 350 }} />
+        </Form.Item>
+        <Form.Item
+          label="Description"
+          field="description"
+          rules={[{ required: true, type: "string" }]}
+        >
+          <TextArea
+            placeholder="Please enter ..."
+            autoSize={{ minRows: 4, maxRows: 8 }}
+            style={{ width: 350 }}
+          />
+        </Form.Item>
+
         <Form.Item
           label="Upload"
           field="upload"
@@ -124,7 +189,7 @@ const Mint: FC<IMintProps> = () => {
           </Button>
         </FormItem>
       </Form>
-    </div>
+    </Spin>
   );
 };
 

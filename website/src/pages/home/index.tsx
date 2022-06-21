@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
-import { Card, Avatar, Typography } from "@arco-design/web-react";
 import {
-  IconThumbUp,
-  IconShareInternal,
-  IconMore,
-} from "@arco-design/web-react/icon";
+  Card,
+  Typography,
+  Avatar,
+  Tag,
+  Descriptions,
+} from "@arco-design/web-react";
+import { IconUser } from "@arco-design/web-react/icon";
 import useWeb3 from "src/contexts/web3-context";
 import styles from "./index.module.less";
 
@@ -18,6 +20,13 @@ const Home = () => {
   });
   console.log("collectionsContract", collectionsContract);
 
+  const getOwnerOfNft = async (tokenId: any) => {
+    const ownerAddress = await collectionsContract.methods
+      .ownerOf(tokenId)
+      .call();
+    return ownerAddress;
+  };
+
   const loadBlockChainData = async (collectionsContract: any) => {
     const totalSupply = await collectionsContract.methods.totalSupply().call();
     // set up array to keep track of tokens
@@ -26,6 +35,7 @@ const Home = () => {
       const collection = await collectionsContract.methods
         .collections(i)
         .call();
+      collection["owner"] = await getOwnerOfNft(i);
       collections.push(collection);
     }
     console.log("collections", collections);
@@ -72,35 +82,51 @@ const Home = () => {
                 />
               </div>
             }
-            actions={[
-              <span className={styles["icon-hover"]}>
-                <IconThumbUp />
-              </span>,
-              <span className={styles["icon-hover"]}>
-                <IconShareInternal />
-              </span>,
-              <span className={styles["icon-hover"]}>
-                <IconMore />
-              </span>,
-            ]}
           >
             <Meta
               avatar={
                 <div
                   style={{
                     display: "flex",
-                    alignItems: "center",
-                    color: "#1D2129",
                   }}
                 >
-                  <Avatar size={24} style={{ marginRight: 8 }}>
-                    A
+                  <Avatar
+                    style={{
+                      flex: 1,
+                      backgroundColor: "#3370ff",
+                      marginRight: 8,
+                    }}
+                  >
+                    <IconUser />
                   </Avatar>
-                  <Typography.Text>aaa</Typography.Text>
+                  <Typography.Text style={{ flex: 7 }} copyable>
+                    {collection.owner}
+                  </Typography.Text>
                 </div>
               }
               title={collection.fileName}
-              description={`Type: ${collection.fileType}, Date: ${collection.date}`}
+              description={
+                <Descriptions
+                  colon=": "
+                  column={1}
+                  labelStyle={{ paddingRight: 16 }}
+                  style={{ marginTop: 16 }}
+                  data={[
+                    {
+                      label: "Type",
+                      value: (
+                        <Tag color="magenta" bordered>
+                          {collection.fileType}
+                        </Tag>
+                      ),
+                    },
+                    {
+                      label: "Date",
+                      value: collection.date,
+                    },
+                  ]}
+                />
+              }
             />
           </Card>
         );

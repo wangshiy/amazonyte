@@ -1,0 +1,6 @@
+/static/media/*
+  Cache-Control: public, s-max-age=604800
+/static/css/*.css
+  Cache-Control: public, s-max-age=604800
+/static/js/*.js
+  Cache-Control: public, s-max-age=604800
